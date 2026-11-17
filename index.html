@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proteção de Informações: Criptografia e Hash</title>
+<style>
+:root {
+--cor-fundo: #090D16;
+--cor-card: #131B2E;
+--cor-input: #1E293B;
+--cor-destaque: #10B981;
+--cor-destaque-hover: #059669;
+--cor-alerta: #F59E0B;
+--cor-texto: #F8FAFC;
+--cor-subtexto: #94A3B8;
+}
+
+body {
+background-color: var(--cor-fundo);
+color: var(--cor-texto);
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+margin: 0;
+padding: 20px;
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+
+header {
+text-align: center;
+max-width: 700px;
+margin-bottom: 30px;
+}
+
+h1 {
+color: var(--cor-destaque);
+margin-bottom: 10px;
+}
+
+.container {
+width: 100%;
+max-width: 700px;
+display: flex;
+flex-direction: column;
+gap: 25px;
+}
+
+.card {
+background-color: var(--cor-card);
+padding: 25px;
+border-radius: 12px;
+border: 1px solid #1E293B;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+h2 {
+margin-top: 0;
+font-size: 20px;
+color: var(--cor-destaque);
+border-bottom: 1px solid #1E293B;
+padding-bottom: 10px;
+}
+
+p {
+color: var(--cor-subtexto);
+font-size: 14px;
+line-height: 1.5;
+}
+
+label {
+display: block;
+margin-top: 12px;
+margin-bottom: 5px;
+font-weight: bold;
+font-size: 14px;
+}
+
+input {
+width: 100%;
+padding: 12px;
+border-radius: 8px;
+border: 1px solid #334155;
+background-color: var(--cor-input);
+color: var(--cor-texto);
+font-size: 15px;
+box-sizing: border-box;
+}
+
+.botoes-linha {
+display: flex;
+gap: 10px;
+margin-top: 15px;
+}
+
+button {
+flex: 1;
+padding: 12px;
+border: none;
+border-radius: 8px;
+background-color: var(--cor-destaque);
+color: #090D16;
+font-weight: bold;
+font-size: 15px;
+cursor: pointer;
+transition: background-color 0.2s;
+margin-top: 15px;
+}
+
+button:hover {
+background-color: var(--cor-destaque-hover);
+}
+
+button.secundario {
+background-color: #334155;
+color: var(--cor-texto);
+}
+
+button.secundario:hover {
+background-color: #475569;
+}
+
+.resultado {
+margin-top: 15px;
+padding: 12px;
+background-color: #090D16;
+border-left: 4px solid var(--cor-destaque);
+border-radius: 6px;
+font-family: monospace;
+font-size: 14px;
+word-break: break-all;
+min-height: 20px;
+}
+
+.aviso {
+border-left-color: var(--cor-alerta);
+color: #FDE68A;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Segurança da Informação</h1>
+<p>Projeto prático sobre Criptografia por Substituição, Funções Hash (SHA-256) e Simulação de Ataque de Força Bruta.</p>
+</header>
+
+<div class="container">
+<!
+-SEÇÃO 1: CRIPTOGRAFIA POR SUBSTITUIÇÃO -->
+<div class="card">
+<h2>1. Criptografia por Substituição (Cifra de César)</h2>
+<p>Desloca cada letra do alfabeto de acordo com a chave escolhida para codificar ou decodificar mensagens.</p>
+
+<label for="mensagemCesar">Mensagem:</label>
+<input type="text" id="mensagemCesar" placeholder="Digite uma frase secreta...">
+
+<label for="chaveCesar">Chave de deslocamento (número):</label>
+<input type="number" id="chaveCesar" value="3" min="1" max="25">
+
+<div class="botoes-linha">
+<button onclick="processarCesar(true)">Codificar</button>
+<button class="secundario" onclick="processarCesar(false)">Decodificar</button>
+</div>
+
+<div class="resultado" id="resultadoCesar">O resultado aparecerá aqui...</div>
+</div>
+<!
+-SEÇÃO 2: FUNÇÃO HASH SHA-256 -->
+<div class="card">
+<h2>2. Função Hash (SHA-256)</h2>
+<p>Transforma qualquer texto em uma assinatura única de tamanho fixo (usada para proteger senhas em bancos de dados).</p>
+
+<label for="textoHash">Digite uma senha ou texto:</label>
+<input type="text" id="textoHash" placeholder="Ex: minhaSenha123">
+
+<button onclick="gerarHash()">Gerar Hash SHA-256</button>
+
+<div class="resultado" id="resultadoHash">O código Hash aparecerá aqui...</div>
+</div>
+<!
+-SEÇÃO 3: ATAQUE DE FORÇA BRUTA -->
+<div class="card">
+<h2>3. Simulação de Ataque de Força Bruta</h2>
+<p>Testa combinações numéricas automaticamente para descobrir uma senha fraca de 4 dígitos (0000 a 9999).</p>
+
+<label for="senhaAlvo">Defina uma senha numérica de 4 dígitos:</label>
+<input type="text" id="senhaAlvo" maxlength="4" placeholder="Ex: 4829">
+
+<button onclick="simularForcaBruta()">Iniciar Ataque de Força Bruta</button>
+
+<div class="resultado aviso" id="resultadoForcaBruta">Aguardando senha para iniciar o teste...</div>
+</div>
+</div>
+<script>
+// 1. Lógica da Criptografia por Substituição
+function processarCesar(codificar) {
+const texto = document.getElementById("mensagemCesar").value;
+let chave = parseInt(document.getElementById("chaveCesar").value) || 0;
+if (!codificar) chave = -chave;
+
+let resultado = "";
+
+for (let i = 0; i < texto.length; i++) {
+let char = texto[i];
+if (char.match(/[a-z]/i)) {
+let codigo = texto.charCodeAt(i);
+let base = (codigo >= 65 && codigo <= 90) ? 65 : 97;
+let novoCodigo = ((codigo
+base + chave) % 26 + 26) % 26 + base;
+resultado += String.fromCharCode(novoCodigo);
+} else {
+resultado += char;
+}
+}
+document.getElementById("resultadoCesar").textContent = resultado || "Digite uma mensagem acima.";
+}
+
+// 2. Lógica da Função Hash SHA-256
+async function gerarHash() {
+const texto = document.getElementById("textoHash").value;
+const caixaResultado = document.getElementById("resultadoHash");
+
+if (!texto) {
+caixaResultado.textContent = "Por favor, digite algum texto ou senha.";
+return;
+}
+
+const encoder = new TextEncoder();
+const data = encoder.encode(texto);
+const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+const hashArray = Array.from(new Uint8Array(hashBuffer));
+const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+caixaResultado.textContent = hashHex;
+}
+
+// 3. Lógica da Simulação de Força Bruta
+function simularForcaBruta() {
+const alvo = document.getElementById("senhaAlvo").value;
+const caixaResultado = document.getElementById("resultadoForcaBruta");
+
+if (!/^\d{4}$/.test(alvo)) {
+caixaResultado.textContent = "Erro: Digite exatamente 4 números (ex: 0412).";
+return;
+}
+
+const inicio = performance.now();
+let tentativas = 0;
+
+for (let i = 0; i <= 9999; i++) {
+tentativas++;
+let tentativaAtual = i.toString().padStart(4, '0');
+if (tentativaAtual === alvo) {
+const fim = performance.now();
+const tempo = (fim
+inicio).toFixed(2);
+caixaResultado.textContent = `Senha descoberta: "${tentativaAtual}" em ${tentativas} tentativas (${tempo} ms)! Conclusão: Senhas curtas são vulneráveis.`;
+return;
+}
+}
+}
+</script>
+</body>
+</html>
